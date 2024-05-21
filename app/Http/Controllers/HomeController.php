@@ -25,4 +25,9 @@ class HomeController extends Controller
     {
         return view('home');
     }
+
+    public function redirectToProducts()
+    {
+        return redirect('/products');
+    }
 }
