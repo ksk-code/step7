@@ -17,7 +17,7 @@
                                 <option value="">メーカー名</option>
                                 @foreach ($companies as $company)
                                 <option value="{{ $company->id }}" {{ request('company_id') == $company->id? 'selected' : '' }}>
-                                    {{ $company->name }}
+                                    {{ $company->company_name }}
                                 </option>
                             @endforeach
                             </select>
@@ -45,12 +45,12 @@
                                 @foreach ($products as $product)
                                     <tr>
                                         <td>{{ $product->id }}</td>
-                                        <td>{{ $product->name }}</td>
+                                        <td>{{ $product->product_name }}</td>
                                         <td>￥{{ $product->price }}</td>
                                         <td>{{ $product->stock }}</td>
                                         <td><img src="{{ asset('storage/images/'. $product->img_path) }}" alt="{{ $product->name }}" width="100"></td>
                                         <td>{{ $product->comment }}</td>
-                                        <td>{{ $product->company->name }}</td>
+                                        <td>{{ $product->company->company_name }}</td>
                                         <td>
                                             <form action="{{ route('products.destroy', $product->id) }}" method="POST">
                                             @csrf

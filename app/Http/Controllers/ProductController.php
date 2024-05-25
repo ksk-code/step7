@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Company;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\CreateProductRequest;
+use App\Http\Requests\UpdateProductRequest;
+
+
 
 class ProductController extends Controller
 {
@@ -24,7 +29,7 @@ class ProductController extends Controller
         $companyId = $request->input('company_id');
 
         if (!empty($keyword)) {
-            $products->where('name', 'LIKE', "%{$keyword}%") // 商品名に基づく部分一致検索
+            $products->where('product_name', 'LIKE', "%{$keyword}%") // 商品名に基づく部分一致検索
                     ->orWhere('comment', 'LIKE', "%{$keyword}%"); // 商品説明に基づく部分一致検索
         }
 
@@ -51,59 +56,47 @@ class ProductController extends Controller
         return view('products.create');
     }
 
-    public function store(Request $request)
+    public function store(CreateProductRequest $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|max:255',
-            'company_id' => 'required|exists:companies,id',
-            'price' => 'required|numeric',
-            'stock' => 'required|integer',
-            'comment' => 'nullable|string',
-            'image' => 'nullable|image',
-        ]);
+        DB::transaction(function () use ($request) {
 
         $product = new Product;
-        $product->fill($validatedData);
+        $product->fill($request->validated());
 
-        if(request('image')){
-            $name=request()->file('image')->getClientOriginalName();
-            request()->file('image')->move('storage/images',$name);
-            $product->img_path=$name;
+        if($request->hasFile('image')){
+            $name = $request->file('image')->getClientOriginalName();
+            $request->file('image')->move('storage/images', $name);
+            $product->img_path = $name;
         }
 
-    $product->save();
+        $product->save();
+    });
 
     return redirect()->route('products.create');
-    }
+}
 
-    public function update(Request $request, Product $product)
-    {
-        if ($request->hasFile('image')) {
-            // 既存の画像ファイルを削除（必要に応じて）
-            // Storage::delete($product->img_path);
-    
-            // アップロードされたファイルを取得
-            $image = $request->file('image');
-    
-            // 新しいファイル名を生成（ここでは現在の日時を使用）
-            $filename = time(). '.'. $image->getClientOriginalExtension();
-    
-            // ファイルを指定したディレクトリに保存
-            $path = $image->storeAs('images', $filename, 'public');
-    
-            // データベースのimg_pathを更新
-            $product->img_path = basename($path);
-            $product->save();
+public function update(UpdateProductRequest $request, Product $product)
+{
+    DB::transaction(function () use ($request, $product) {
+
+        if($request->hasFile('image')){
+            $name = $request->file('image')->getClientOriginalName();
+            $request->file('image')->move('storage/images', $name);
+            $product->img_path = $name;
         }
-        $product->update($request->all());
-        return redirect()->route('products.edit', ['product' => $product->id]);
-    }
 
-    public function destroy($id)
+        $product->update($request->validated());
+    }); 
+
+    return redirect()->route('products.edit', ['product' => $product->id]);
+}
+
+    public function destroy(Product $product)
     {
-        $product = Product::findOrFail($id);
-        $product->delete();
-
+        DB::transaction(function () use ($product) {
+            $product->delete();
+        });
+    
         return redirect()->route('products.index');
     }
 }

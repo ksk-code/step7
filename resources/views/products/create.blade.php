@@ -10,7 +10,7 @@
     <div class="form-group">
         <label for="name">商品名</label>
         @include('partials.require')
-        <input type="text" class="form-control" id="name" name="name" required>
+        <input type="text" class="form-control" id="product_name" name="product_name" required>
     </div>
     <div class="form-group">
     <label for="company_id">メーカー名</label>
@@ -18,7 +18,7 @@
     <select class="form-control" id="company_id" name="company_id" required>
         <option value="">選択してください</option>
         @foreach ($companies as $company)
-            <option value="{{ $company->id }}">{{ $company->name }}</option>
+            <option value="{{ $company->id }}">{{ $company->company_name }}</option>
         @endforeach
     </select>
     </div>

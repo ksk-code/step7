@@ -10,9 +10,9 @@
                 <div class="card-body">
                     <p>ID:{{ $product->id }}</p>
                     <p>画像:</p>
-                    <img src="{{ asset('storage/images/'. $product->img_path) }}" alt="{{ $product->name }}" width="200">
-                    <p>商品名:{{ $product->name }}</p>
-                    <p>メーカー: {{ $product->company->name?? '未知' }}</p>
+                    <img src="{{ asset('storage/images/'. $product->img_path) }}" alt="{{ $product->product_name }}" width="200">
+                    <p>商品名:{{ $product->product_name }}</p>
+                    <p>メーカー: {{ $product->company->company_name?? '未知' }}</p>
                     <p>価格: ￥{{ $product->price }}</p>
                     <p>在庫数: {{ $product->stock }}</p>
                     <p>コメント: {{ $product->comment }}</p>
