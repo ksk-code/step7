@@ -41,6 +41,6 @@
         <input type="file" class="form-control-file" id="image" name="image">
     </div>
     <button type="submit" class="btn btn-primary">登録</button>
-    <button type="submit" class="btn btn-primary" onclick="location.href='{{ route('products.index') }}'">戻る</button>
+    <a href="{{ route('products.index') }}" class="btn btn-primary">戻る</a>
 </form>
 @endsection
