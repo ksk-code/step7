@@ -59,7 +59,7 @@
                                             </form>
                                         </td>
                                         <td>
-                                            <button onclick="event.preventDefault(); window.location.href='{{ route('products.detail', ['id' => $product->id]) }}';" class="btn btn-info ml-2">詳細</button> 
+                                        <a href="{{ route('products.detail', ['id' => $product->id]) }}" class="btn btn-info ml-2">詳細</a> 
                                         </td>
                                     </tr>
                                 @endforeach
