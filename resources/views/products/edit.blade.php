@@ -2,6 +2,7 @@
 
 @section('content')
     <h1>商品編集</h1>
+    <p>ID:{{ $product->id }}</p>
 
 <form action="{{ route('products.update', ['product' => $product->id]) }}" method="post" enctype="multipart/form-data">
     @csrf

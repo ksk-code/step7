@@ -10,18 +10,17 @@ use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 
 
-
 class ProductController extends Controller
 {
 
-    public function edit(Product $product)
-    {
+    public function edit(Product $product){
+
         $companies = \App\Models\Company::all();
         return view('products.edit', compact('product', 'companies'));
     }
 
-    public function index(Request $request)
-    {
+    public function index(Request $request){
+
         $companies = Company::all();
         $products = Product::query();
     
@@ -42,61 +41,74 @@ class ProductController extends Controller
         return view('products.index', ['products' => $products,'companies' => $companies,]);
     }
     
-    public function show($id)
-    {
+    public function show($id){
+
         $product = Product::findOrFail($id);
         return view('products.detail', compact('product'));
     }
     
-    public function create()
-    {
+    public function create(){
+
         $companies = Company::all();
         return view('products.create', compact('companies'));
 
         return view('products.create');
     }
 
-    public function store(CreateProductRequest $request)
-    {
-        DB::transaction(function () use ($request) {
-
-        $product = new Product;
-        $product->fill($request->validated());
-
-        if($request->hasFile('image')){
-            $name = $request->file('image')->getClientOriginalName();
-            $request->file('image')->move('storage/images', $name);
-            $product->img_path = $name;
+    public function store(CreateProductRequest $request){
+        DB::beginTransaction();
+    
+        try{
+            $product = new Product();
+            $product->fill($request->validated());
+    
+            if($request->hasFile('image')){
+                $name = $request->file('image')->getClientOriginalName();
+                $request->file('image')->move('storage/images', $name);
+                $product->img_path = $name;
+            }
+            $product->save();
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back();
         }
+    
+        return redirect()->route('products.create');
+    }
 
-        $product->save();
-    });
-
-    return redirect()->route('products.create');
-}
-
-public function update(UpdateProductRequest $request, Product $product)
-{
-    DB::transaction(function () use ($request, $product) {
-
-        if($request->hasFile('image')){
-            $name = $request->file('image')->getClientOriginalName();
-            $request->file('image')->move('storage/images', $name);
-            $product->img_path = $name;
+public function update(UpdateProductRequest $request, Product $product){
+        DB::beginTransaction();
+    
+        try{
+            if($request->hasFile('image')){
+                $name = $request->file('image')->getClientOriginalName();
+                $request->file('image')->move('storage/images', $name);
+                $product->img_path = $name;
+            }
+            
+            $product->update($request->validated());
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back();
         }
-
-        $product->update($request->validated());
-    }); 
 
     return redirect()->route('products.edit', ['product' => $product->id]);
 }
 
-    public function destroy(Product $product)
-    {
-        DB::transaction(function () use ($product) {
-            $product->delete();
-        });
+    public function destroy(Request $request,Product $product){
+        DB::beginTransaction();
     
-        return redirect()->route('products.index');
-    }
+            try{
+                $product = Product::find($request->input('product_id'));
+                $product->delete();
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return back();
+            }
+    
+    return redirect()->route('products.index');
+}
 }
