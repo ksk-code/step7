@@ -16,7 +16,7 @@
                     <p>価格: ￥{{ $product->price }}</p>
                     <p>在庫数: {{ $product->stock }}</p>
                     <p>コメント: {{ $product->comment }}</p>
-                    <button type="submit" class="btn btn-primary" onclick="location.href='{{ route('products.index') }}'">戻る</button>
+                    <a href="{{ route('products.index') }}" class="btn btn-primary">戻る</a>
                     <a href="{{ route('products.edit', ['product' => $product->id]) }}" class="btn btn-warning">編集</a>        </div>
     </div>
 </div>
