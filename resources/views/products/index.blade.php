@@ -52,12 +52,15 @@
                                         <td>{{ $product->comment }}</td>
                                         <td>{{ $product->company->company_name }}</td>
                                         <td>
-                                            <form action="{{ route('products.destroy', $product->id) }}" method="POST">
+                                            <form action="{{ route('products.destroy',$product->id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
-                                            <input type="hidden" name="product_id" value="{{ $product->id }}">
                                             <button type="submit" class="btn btn-danger">削除</button>
+                                            </form>
+                                        </td>
+                                        <td>
                                             <button onclick="event.preventDefault(); window.location.href='{{ route('products.detail', ['id' => $product->id]) }}';" class="btn btn-info ml-2">詳細</button> 
+                                        </td>
                                     </tr>
                                 @endforeach
                                 

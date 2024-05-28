@@ -41,6 +41,5 @@
         <input type="file" class="form-control-file" id="image" name="image">
     </div>
     <button type="submit" class="btn btn-primary">更新</button>
-    <a href="{{ route('products.index') }}" class="btn btn-secondary">戻る</a>
-</form>
+    <a href="{{ route('products.detail', ['id' => $product->id]) }}" class="btn btn-info ml-2">戻る</a></form>
 @endsection

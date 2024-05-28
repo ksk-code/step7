@@ -97,12 +97,12 @@ public function update(UpdateProductRequest $request, Product $product){
     return redirect()->route('products.edit', ['product' => $product->id]);
 }
 
-    public function destroy(Request $request,Product $product){
+    public function destroy(Product $product){
+        
         DB::beginTransaction();
     
             try{
-                $product = Product::find($request->input('product_id'));
-                $product->delete();
+                $product->delete();                
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();

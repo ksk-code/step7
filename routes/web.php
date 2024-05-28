@@ -30,3 +30,4 @@ Route::resource('products', ProductController::class);
 
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.detail');
 
+Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
