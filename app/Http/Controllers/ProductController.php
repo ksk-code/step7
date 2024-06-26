@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+
+
 
 
 class ProductController extends Controller
@@ -19,24 +22,13 @@ class ProductController extends Controller
         return view('products.edit', compact('product', 'companies'));
     }
 
-    public function index(Request $request){
+    public function index(){
 
         $companies = Company::all();
         $products = Product::query();
-    
-        $keyword = $request->input('keyword');
-        $companyId = $request->input('company_id');
 
-        if (!empty($keyword)) {
-            $products->where('product_name', 'LIKE', "%{$keyword}%") // 商品名に基づく部分一致検索
-                    ->orWhere('comment', 'LIKE', "%{$keyword}%"); // 商品説明に基づく部分一致検索
-        }
+        $products = Product::query()->paginate(10);
 
-        if (!empty($companyId)) {
-            $products->where('company_id', $companyId);
-        }
-    
-        $products = $products->paginate(10); // ページネーション
     
         return view('products.index', ['products' => $products,'companies' => $companies,]);
     }
@@ -102,13 +94,45 @@ public function update(UpdateProductRequest $request, Product $product){
         DB::beginTransaction();
     
             try{
-                $product->delete();                
+                $product->delete();
                 DB::commit();
+                return response()->json(['success' => true], 200);            
             } catch (\Exception $e) {
                 DB::rollBack();
-                return back();
+                return response()->json(['error' => 'Failed to delete product'], 500);
+            }
+        }
+        
+        public function search(Request $request)
+        {
+            $keyword = $request->input('keyword');
+            $companyId = $request->input('company_id');
+            $minPrice = $request->input('min_price');
+            $maxPrice = $request->input('max_price');
+            $minStock = $request->input('min_stock');
+            $maxStock = $request->input('max_stock');
+    
+            $query = Product::query();
+    
+            if (!empty($keyword)) {
+                $query->where('product_name', 'like', "%{$keyword}%");
             }
     
-    return redirect()->route('products.index');
+            if (!empty($companyId)) {
+                $query->where('company_id', $companyId);
+            }
+    
+            if ($minPrice && $maxPrice) {
+                $query->whereBetween('price', [$minPrice, $maxPrice]);
+            }
+    
+            if ($minStock && $maxStock) {
+                $query->whereBetween('stock', [$minStock, $maxStock]);
+            }
+    
+            $products = $query->paginate(10)->toArray();
+    
+            return response()->json($products);
+        }
 }
-}
+

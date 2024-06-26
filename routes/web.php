@@ -21,7 +21,6 @@ Route::get('/', function () {
 Auth::routes();
 
 use App\Http\Controllers\HomeController;
-
 Route::get('/home', [HomeController::class, 'redirectToProducts'])->name('home');
 
 use App\Http\Controllers\ProductController;
@@ -31,3 +30,5 @@ Route::resource('products', ProductController::class);
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.detail');
 
 Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');

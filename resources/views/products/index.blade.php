@@ -9,7 +9,7 @@
 
                     <div class="card-body">
                     <div>
-                        <form action="{{ route('products.index') }}" method="GET">
+                        <form id="searchForm" >
                             @csrf
                             <input type="text" name="keyword" placeholder="検索キーワード">
 
@@ -21,14 +21,20 @@
                                 </option>
                             @endforeach
                             </select>
+                            <br>
+                            <input type="number" name="min_price" placeholder="最低価格">
+                            <input type="number" name="max_price" placeholder="最高価格">
+                            <br>
+                            <input type="number" name="min_stock" placeholder="最小在庫">
+                            <input type="number" name="max_stock" placeholder="最大在庫">
 
-                            <input type="submit" value="検索">
+                            <button type="button" id="searchBtn" >検索</button>
                         </form>
                     </div>
 
                         <a href="{{ route('products.create') }}" class="btn btn-primary mb-3">新規登録</a>
 
-                        <table class="table">
+                        <table class="table" id="productTable">
                             <thead>
                                 <tr>
                                     <th>ID</th>
@@ -41,9 +47,9 @@
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="tbody" id="results">
                                 @foreach ($products as $product)
-                                    <tr>
+                                    <tr class = "productId">
                                         <td>{{ $product->id }}</td>
                                         <td>{{ $product->product_name }}</td>
                                         <td>￥{{ $product->price }}</td>
@@ -55,11 +61,18 @@
                                             <form action="{{ route('products.destroy',$product->id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger">削除</button>
+                                            <button data-id="{{ $product->id }}" type="submit" class="btn btn-danger delete-btn" id="deleteBtn" >削除</button>
                                             </form>
                                         </td>
                                         <td>
                                         <a href="{{ route('products.detail', ['id' => $product->id]) }}" class="btn btn-info ml-2">詳細</a> 
+                                        </td>
+                                        <td>
+                                            <form action="/api/purchase" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                                <button type="submit" class="btn btn-success">購入</button>
+                                            </form>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -73,4 +86,6 @@
             </div>
         </div>
     </div>
+    
 @endsection
+
