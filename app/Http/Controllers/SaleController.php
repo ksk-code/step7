@@ -8,19 +8,16 @@ use App\Models\Product;
 
 class SaleController extends Controller
 {
-    /**
-     * 購入処理を行う
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
-    {
-    // リクエストから必要なデータを取得
+{
     $productId = $request->input('product_id');
 
+    // 商品情報が存在しない場合の処理
+    if (!$product = Product::findOrFail($productId)) {
+        return response()->json(['error' => '商品情報が見つかりません'], 404);
+    }
+
     // 在庫があるかチェック
-    $product = Product::findOrFail($productId);
     if ($product->stock <= 0) {
         return response()->json(['error' => '在庫不足'], 400);
     }
@@ -38,5 +35,5 @@ class SaleController extends Controller
     $sale->save();
 
     return response()->json(['message' => '購入成功'], 201);
-    }
+}
 }

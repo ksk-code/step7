@@ -1,7 +1,7 @@
 $.ajaxSetup({
-    headers:{
-        'X-CSRF-TOKEN':'{{csrf_token()}}'
-    }
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
 });
 
 $(document).ready(function() {
@@ -15,49 +15,72 @@ $(document).ready(function() {
         },
     });
 
-    //検索機能
-    $('#searchBtn').on('click', function(e) {
-        e.preventDefault();
-        let formData = new FormData($('#searchForm')[0]);
+    // 検索機能
+$('#searchBtn').on('click', function(e) {
+    e.preventDefault();
+    let formData = $('#searchForm').serialize(); // クエリパラメータ形式に変換
 
-        $.ajax({
-            url: '/products/search',
-            type: 'GET',
-            data: formData,
-            dataType: 'json',
-            success: function(data) {
-                let resultsContainer = $('#results');
-                resultsContainer.empty(); // 既存の内容をクリア
-                data.data.forEach(product => {
-                    // ここで各製品情報をHTML要素として生成し、resultsContainerに追加
-                    let productHtml = `
-                        <div class="product">
-                            <h3>${product.product_name}</h3>
-                            <p>価格: ${product.price}</p>
-                            <p>在庫: ${product.stock}</p>
-                        </div>
-                    `;
-                    resultsContainer.append(productHtml);
-                });
+    $.ajax({
+        url: "/products/search",
+        type: 'GET',
+        data: formData,
+        dataType: 'json',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            error: function() {
-                alert('Search failed.');
-            }
-        });
+            success: function(data) {
+                let tableBody = $('.table tbody');
+                tableBody.empty(); // テーブルの内容をクリア
+            
+                // 各商品の行を生成して追加
+                $.each(data.data, function(index, product) {
+                    let row = `
+                        <tr class="productId">
+                            <td>${product.id}</td>
+                            <td>${product.product_name}</td>
+                            <td>￥${product.price}</td>
+                            <td>${product.stock}</td>
+                            <td><img src="${product.img_path}" alt="${product.name}" width="100"></td>
+                            <td>${product.comment}</td>
+                            <td>${product.company_name}</td>
+                            <td>
+                                <!-- 削除ボタンのフォーム -->
+                            </td>
+                            <td>
+                                <a href="/products/detail/${product.id}" class="btn btn-info ml-2">詳細</a>
+                            </td>
+                            <td>
+                                <!-- 購入ボタンのフォーム -->
+                            </td>
+                        </tr>`;
+                    tableBody.append(row);
+                });
+            
+                // ページネーションリンクを更新
+                $('.pagination').html(data.links);
+            
+                // ソート機能を再適用
+                $("#productTable").trigger("update");
+            },
+        error: function() {
+            alert('Search failed.');
+        }
     });
+});
 
     //削除機能
-    $(".delete-btn").on("click", function() {
-        var productId = $(this).closest('tr').find('.productId').val(); //.productIdは商品IDを保持している要素のクラス名
+    $(".delete-btn").on("click", function(e) {
+        e.preventDefault();
+        var productId = $(this).data('productId'); // data-productId属性からIDを取得
         var deleteConfirm = confirm('削除してもよろしいですか？');
     
         if (deleteConfirm) {
             $.ajax({
                 url: '/products/' + productId,
-                type: 'DELETE',
+                type: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                },
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                 success: function(response) {
                     if (response.success) {
                         $(this).closest('tr').remove(); // このボタンが属する行を削除
