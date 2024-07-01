@@ -1,8 +1,8 @@
-$.ajaxSetup({
+/*$.ajaxSetup({
     headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
-});
+});*/
 
 $(document).ready(function() {
     //ソート機能
@@ -21,13 +21,13 @@ $('#searchBtn').on('click', function(e) {
     let formData = $('#searchForm').serialize(); // クエリパラメータ形式に変換
 
     $.ajax({
-        url: "/products/search",
+        url: "search",
         type: 'GET',
         data: formData,
         dataType: 'json',
-        headers: {
+        /*headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
+            },*/
             success: function(data) {
                 let tableBody = $('.table tbody');
                 tableBody.empty(); // テーブルの内容をクリア
@@ -83,7 +83,7 @@ $('#searchBtn').on('click', function(e) {
     
         if (deleteConfirm) {
             $.ajax({
-                url: '/products/' + productId,
+                url: 'products/' + productId,
                 type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

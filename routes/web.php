@@ -31,4 +31,4 @@ Route::get('/products/{id}', [ProductController::class, 'show'])->name('products
 
 Route::post('/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
 
-Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
+Route::get('/search', [ProductController::class, 'search'])->name('products.search');
