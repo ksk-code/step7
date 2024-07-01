@@ -5,11 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Sale;
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 
 class SaleController extends Controller
 {
     public function store(Request $request)
 {
+    DB::beginTransaction();
+
+    try {
     $productId = $request->input('product_id');
 
     // 商品情報が存在しない場合の処理
@@ -35,5 +39,10 @@ class SaleController extends Controller
     $sale->save();
 
     return response()->json(['message' => '購入成功'], 201);
+        DB::commit();
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['error' => 'Transaction failed'], 500);
+    }
 }
 }

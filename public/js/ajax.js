@@ -96,17 +96,18 @@ $('#searchBtn').on('click', function(e) {
     });
 
     //購入処理
-    $('#purchaseButton').on('click', function() {
-        const productId = $('#productIdInput').val();
-        const quantity = $('#quantityInput').val();
+    $('#purchaseButton').on('click', function(e) {
+        e.preventDefault(); // フォームのデフォルト動作を防ぐ
+        const form = $(this).closest('form'); // 最近のフォーム要素を取得
+        const formData = form.serializeArray().reduce((obj, item) => {
+            obj[item.name] = item.value;
+            return obj;
+        }, {}); 
     
         $.ajax({
             url: '/api/purchase',
             type: 'POST',
-            data: {
-                product_id: productId,
-                quantity: quantity
-            },
+            data: formData,
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
