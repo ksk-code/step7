@@ -33,7 +33,7 @@ $('#searchBtn').on('click', function(e) {
                 tableBody.empty(); // テーブルの内容をクリア
             
                 // 各商品の行を生成して追加
-                $.each(data.data, function(index, product) {
+                $.each(data.data, function(product) {
                     let row = `
                         <tr class="productId">
                             <td>${product.id}</td>
@@ -44,13 +44,20 @@ $('#searchBtn').on('click', function(e) {
                             <td>${product.comment}</td>
                             <td>${product.company_name}</td>
                             <td>
-                                <!-- 削除ボタンのフォーム -->
+                                <form id="deleteForm-${product.id}" action="/api/products/${product.id}" method="POST">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn btn-danger delete-btn">削除</button>
+                                </form>
                             </td>
                             <td>
                                 <a href="/products/detail/${product.id}" class="btn btn-info ml-2">詳細</a>
                             </td>
                             <td>
-                                <!-- 購入ボタンのフォーム -->
+                                <form id="purchaseForm-${product.id}" action="/api/purchase" method="POST">
+                                    <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                                    <input type="hidden" name="product_id" value="${product.id}">
+                                    <button type="submit" class="btn btn-success">購入</button>
+                                </form>
                             </td>
                         </tr>`;
                     tableBody.append(row);
