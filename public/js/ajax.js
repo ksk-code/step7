@@ -54,26 +54,18 @@ $('#searchBtn').on('click', function(e) {
                             <td>
                                 <a href="products/${product.id}" class="btn btn-info ml-2">詳細</a>
                             </td>
-                            <td>
-                                <form id="purchaseForm-${product.id}" action="/api/purchase" method="POST">
-                                    <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
-                                    <input type="hidden" name="product_id" value="${product.id}">
-                                    <button type="submit" class="btn btn-success">購入</button>
-                                </form>
-                            </td>
                         </tr>`;
                     tableBody.append(row);
                 });
+                // ページネーションリンクを更新
+                $('.pagination').html(data.links);
+                // ソート機能を再適用
+                $("#productTable").trigger("update");
             } else {
                 console.error('Unexpected response format:', data);
             }
             
-                // ページネーションリンクを更新
-                $('.pagination').html(data.links);
-            
-                // ソート機能を再適用
-                $("#productTable").trigger("update");
-                console.error('Unexpected response format:', data);
+
             },
         error: function() {
             alert('Search failed.');

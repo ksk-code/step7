@@ -67,13 +67,6 @@
                                         <td>
                                         <a href="{{ route('products.detail', ['id' => $product->id]) }}" class="btn btn-info ml-2">詳細</a> 
                                         </td>
-                                        <td>
-                                            <form action="/api/purchase" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                                <button id="purchaseButton" type="submit" class="btn btn-success">購入</button>
-                                            </form>
-                                        </td>
                                     </tr>
                                 @endforeach
                                 
