@@ -123,7 +123,7 @@ $('#searchBtn').on('click', function(e) {
         }, {}); 
     
         $.ajax({
-            url: '/api/purchase',
+            url: 'api/purchase',
             type: 'POST',
             data: formData,
             headers: {

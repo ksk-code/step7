@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class SaleController extends Controller
 {
-    public function store(Request $request)
+    public function purchase(Request $request)
 {
     DB::beginTransaction();
 
