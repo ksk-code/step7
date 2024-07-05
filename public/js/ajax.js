@@ -1,8 +1,8 @@
-/*$.ajaxSetup({
+$.ajaxSetup({
     headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
-});*/
+});
 
 $(document).ready(function() {
     //ソート機能
@@ -33,24 +33,26 @@ $('#searchBtn').on('click', function(e) {
                 tableBody.empty(); // テーブルの内容をクリア
             
                 // 各商品の行を生成して追加
-                $.each(data.data, function(product) {
+                if (data && data.data && Array.isArray(data.data)) {
+                    $.each(data.data, function(index, product) {
+                    let imgSrc = product.img_path ? `storage/images/${product.img_path}` : ''; // 画像がある場合はそのパスを設定、ない場合は空文字列を設定
                     let row = `
-                        <tr class="productId">
+                        <tr id="productId-${product.id}" class="productId">
                             <td>${product.id}</td>
                             <td>${product.product_name}</td>
                             <td>￥${product.price}</td>
                             <td>${product.stock}</td>
-                            <td><img src="${product.img_path}" alt="${product.name}" width="100"></td>
+                            <td><img src="${imgSrc}" alt="${product.name}" width="100" style="display: ${imgSrc ? 'block' : 'none'}"></td> <!-- 画像がある場合は表示、それ以外は非表示 -->
                             <td>${product.comment}</td>
-                            <td>${product.company_name}</td>
+                            <td>${product.company.company_name}</td>
                             <td>
-                                <form id="deleteForm-${product.id}" action="/api/products/${product.id}" method="POST">
+                                <form id="deleteForm-${product.id}" action="products/${product.id}" method="POST">
                                     <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-danger delete-btn">削除</button>
+                                    <button type="button" class="btn btn-danger delete-btn" data-id="${product.id}">削除</button>
                                 </form>
                             </td>
                             <td>
-                                <a href="/products/detail/${product.id}" class="btn btn-info ml-2">詳細</a>
+                                <a href="products/${product.id}" class="btn btn-info ml-2">詳細</a>
                             </td>
                             <td>
                                 <form id="purchaseForm-${product.id}" action="/api/purchase" method="POST">
@@ -62,12 +64,16 @@ $('#searchBtn').on('click', function(e) {
                         </tr>`;
                     tableBody.append(row);
                 });
+            } else {
+                console.error('Unexpected response format:', data);
+            }
             
                 // ページネーションリンクを更新
                 $('.pagination').html(data.links);
             
                 // ソート機能を再適用
                 $("#productTable").trigger("update");
+                console.error('Unexpected response format:', data);
             },
         error: function() {
             alert('Search failed.');
@@ -76,21 +82,26 @@ $('#searchBtn').on('click', function(e) {
 });
 
     //削除機能
-    $(".delete-btn").on("click", function(e) {
+    $(document).on("click", ".delete-btn", function(e) {
         e.preventDefault();
-        var productId = $(this).data('productId'); // data-productId属性からIDを取得
+        var clickedButton = $(this); // クリックされたボタンを追跡
+        var productId = $(this).data('id'); // data-productId属性からIDを取得
+        console.log(productId);
         var deleteConfirm = confirm('削除してもよろしいですか？');
     
-        if (deleteConfirm) {
+        if (deleteConfirm == true) {
             $.ajax({
-                url: 'products/' + productId,
+                url: "products/" + productId,
                 type: 'POST',
+                dataType: 'json',
+                data: {'id':productId,'_method':'DELETE'},
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                 success: function(response) {
                     if (response.success) {
-                        $(this).closest('tr').remove(); // このボタンが属する行を削除
+                        clickedButton.closest('tr').remove();
+                        console.log('削除成功');
                     } else {
                         alert('商品の削除に失敗しました');
                     }

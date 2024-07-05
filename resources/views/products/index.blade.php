@@ -61,7 +61,7 @@
                                             <form action="{{ route('products.destroy',$product->id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
-                                            <button data-productId="{{ $product->id }}" type="button" class="btn btn-danger delete-btn">削除</button>
+                                            <button data-id="{{ $product->id }}" data-url="{{ route('products.destroy', $product->id) }}" type="button" class="btn btn-danger delete-btn">削除</button>
                                             </form>
                                         </td>
                                         <td>

@@ -92,7 +92,6 @@ public function update(UpdateProductRequest $request, Product $product){
     public function destroy(Product $product){
         
         DB::beginTransaction();
-    
             try{
                 $product->delete();
                 DB::commit();
@@ -130,7 +129,7 @@ public function update(UpdateProductRequest $request, Product $product){
                 $query->whereBetween('stock', [$minStock, $maxStock]);
             }
     
-            $products = $query->paginate(10)->toArray();
+            $products = $query->with('company')->paginate(10)->toArray();
     
             return response()->json($products);
         }
